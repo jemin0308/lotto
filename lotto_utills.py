@@ -15,3 +15,43 @@ def to_text(game):
     for n in game:
         words.append(str(n))
     return ' - '.join(words)
+
+import pandas as pd
+
+COLS = ['당첨번호1', '당첨번호2', '당첨번호3',
+        '당첨번호4', '당첨번호5', '당첨번호6']
+
+def load_counts(fname):
+    df = pd.read_csv(fname, encoding='utf-8-sig')
+
+    count = {}
+    for n in range(1, 46):
+        count[n] = 0             # 1~45번 모두 0으로 준비
+
+    for col in COLS:
+        for n in df[col]:
+            count[n] += 1        # 나올 때마다 +1
+
+    return count
+
+def top_numbers(count, top=20):
+    items = sorted(count.items(), key=lambda x: x[1], reverse=True)   # 나온 횟수 많은 순으로 정렬
+
+    nums = []
+    for n, c in items[:top]:
+        nums.append(n)           # 번호만 담기
+
+    return nums
+def make_hot_game(count):
+    return sorted(random.sample(top_numbers(count), 6))
+import random
+
+def fill_game(picked):
+    rest = []
+    for n in range(1, 46):
+        if n not in picked:
+            rest.append(n)           # 아직 안 고른 번호만 모으기
+
+    game = list(picked) + random.sample(rest, 6 - len(picked))   # 모자란 개수만큼 랜덤으로 채우기
+    return sorted(game)
+
